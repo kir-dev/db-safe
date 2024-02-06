@@ -16,26 +16,34 @@ class DbSafe
   EOT
 
   flag_arg :dry, 'Dry run. Prints out all the commands that will be executed, without affecting the filesystem'
-  
+  flag_arg :local, 'Only save backup locally, instad of google drive'
 
-  def perform_backup
-    raise "Drive url is missing" unless ENV["DRIVE_URL"].present?
-    raise "Cert name is missing" unless ENV["CERT_NAME"].present?
+  def perform_backup(local)
+
+    # Check for missing Env variables
+    raise "Drive url is missing" unless ENV["DRIVE_URL"].present? || local
+    raise "Cert name is missing" unless ENV["CERT_NAME"].present? || local
     
     
-    # get all running postgres containers, and filter ignored ones
+    # get all running postgres containers, and filter out the ignored ones
     db_containers = active_containers
                     .filter { |container| container[:image].match?(/postgres/) }
                     .filter { |container| !ignored_containers.include? container[:name] }
     
+    # Create individual backup dumps in the workfolder
     backups = db_containers.map { |c| backup_container(c) }.compact
     
+    # The final zip name is created from the hostname e.g Lois and creation date
     artifact_name = "#{hostname}-#{run_date}.zip"
     
+    # Zip all the backups together
     artifact_path = zip_files(backups, artifact_name)
     
-    upload_afrtifact(artifact_path, artifact_name)
-    
+    # Upload artifact to Google Drive or local fodler
+  
+    upload_afrtifact(artifact_path, artifact_name) unless local
+    local_save(artifact_path,artifact_name) if local
+
     clean_work_folder
     
   end
@@ -43,7 +51,7 @@ class DbSafe
   def run
       if opts = parse_arguments
          $dry_run = opts.dry.present?
-        perform_backup
+        perform_backup opts.local.present?
       else
           # False is returned if argument parsing was not completed
           # This may be due to an error or because the help command

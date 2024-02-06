@@ -2,3 +2,4 @@ certs/*.json
 tmp
 .env
 .dbignore
+*.zip

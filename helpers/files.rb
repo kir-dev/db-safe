@@ -1,6 +1,7 @@
 require 'fileutils'
 require './helpers/shared'
 
+# Gets the names of the ignored containers from the .dbignore file
 def ignored_containers
   ignore_file_path = File.join(Dir.getwd, '.dbignore')
 
@@ -9,6 +10,7 @@ def ignored_containers
   File.readlines(ignore_file_path).map(&:chomp)
 end
 
+# Creates a temporary work folder and returns its absolue path
 def work_folder
   path = File.join(Dir.getwd, 'tmp', run_date)
 
@@ -17,10 +19,13 @@ def work_folder
   path
 end
 
+# Deletes all temporary files to save space
 def clean_work_folder
   FileUtils.remove_dir work_folder unless $dry_run
 end
 
+# Zips together multiple backups, into a single file
+# Returns the absolute path of the resulting artifact
 def zip_files(paths, output)
   out_path = File.join(work_folder, output)
   
