@@ -24,13 +24,13 @@ def backup_container(container)
 
   backup_command = "pg_dumpall -U #{root_user} > #{backup_path}"
 
-  result = `docker exec #{container[:name]} bash -c '#{backup_command}'`
+  result = run_cmd "docker exec #{container[:name]} bash -c '#{backup_command}'"
 
   # if result is empty then no error was present
   return nil unless result.empty?
 
   # copy backup from container
-  `docker cp #{container[:name]}:#{backup_path} #{work_folder}`
+  run_cmd "docker cp #{container[:name]}:#{backup_path} #{work_folder}"
 
   File.join(work_folder, backup_name)
 end

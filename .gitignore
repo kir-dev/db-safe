@@ -1,3 +1,4 @@
 certs/*.json
 tmp
 .env
+.dbignore
