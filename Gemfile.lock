@@ -73,6 +73,7 @@ GEM
     i18n (1.14.1)
       concurrent-ruby (~> 1.0)
     jwt (2.7.1)
+    logger (1.6.0)
     memoist (0.16.2)
     mini_mime (1.1.5)
     mini_portile2 (2.8.5)
@@ -114,6 +115,7 @@ DEPENDENCIES
   arg-parser
   dotenv
   google_drive
+  logger
 
 BUNDLED WITH
    2.5.6

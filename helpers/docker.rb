@@ -9,19 +9,35 @@ def active_containers
 
   json_str = `docker ps --format='#{format}' | jq --slurp`
 
-  JSON.parse(json_str).map(&:symbolize_keys)
+  $logger.info 'Getting active containers'
+
+  hash = JSON.parse(json_str).map(&:symbolize_keys)
+
+  names = hash.map { |h| h[:name] }
+  $logger.info "Current active containers are: #{names.to_json}"
+
+  hash
 end
 
 # Gets the postgresql user from the containers ENV
 # Defaults to postgres if its not set
 def container_root_user_name(container)
-  user_env = `docker exec #{container[:name]} bash -c 'echo $POSTGRES_USER'`.chomp
+  $logger.info "Getting postgres password for '#{container[:name]}'"
+
+  user_env_cmd = "docker exec #{container[:name]} bash -c 'echo $POSTGRES_USER'"
+  $logger.info "Executing `#{user_env_cmd}`"
+
+  user_env = `#{user_env_cmd}`.chomp
+  $logger.info "got_user_env:#{user_env}"
+
+  # return user env or default 'postgres'
   user_env.presence || 'postgres'
 end
 
 # Creates a full database dump and saves it in a temporary work folder
 # Returns the absolute path of the created backup
 def backup_container(container)
+  $logger.info "Backing up #{container[:name]}"
 
   # The backup name is <container_name>-<date>.sql
   backup_name = "#{container[:name]}-#{run_date}.sql"
@@ -39,6 +55,7 @@ def backup_container(container)
   # if result is empty then no error was present
   return nil unless result.empty?
 
+  $logger.info "Copying file docker:#{backup_path} to #{work_folder}"
   # Copy backup from container
   run_cmd "docker cp #{container[:name]}:#{backup_path} #{work_folder}"
 

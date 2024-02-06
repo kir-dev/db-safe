@@ -4,6 +4,7 @@ source 'https://rubygems.org'
 
 # gem "rails"
 gem 'activesupport'
-gem 'google_drive'
-gem 'dotenv'
 gem 'arg-parser'
+gem 'dotenv'
+gem 'google_drive'
+gem 'logger'
