@@ -18,6 +18,7 @@ GEM
     concurrent-ruby (1.2.3)
     connection_pool (2.4.1)
     declarative (0.0.20)
+    dotenv (2.8.1)
     drb (2.2.0)
       ruby2_keywords
     faraday (1.10.3)
@@ -109,6 +110,7 @@ PLATFORMS
 
 DEPENDENCIES
   activesupport
+  dotenv
   google_drive
 
 BUNDLED WITH

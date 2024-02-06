@@ -3,6 +3,12 @@
 require './helpers/docker'
 require './helpers/files'
 require './helpers/upload'
+require 'dotenv/load'
+
+
+raise "Drive url is missing" unless ENV["DRIVE_URL"].present?
+raise "Cert name is missing" unless ENV["CERT_NAME"].present?
+
 
 # get all running postgres containers, and filter ignored ones
 db_containers = active_containers
