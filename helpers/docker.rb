@@ -42,23 +42,22 @@ def backup_container(container)
   # The backup name is <container_name>-<date>.sql
   backup_name = "#{container[:name]}-#{run_date}.sql"
 
-  # The backup path inside the container
-  backup_path = "/tmp/#{backup_name}"
+  backup_path = File.join(work_folder, backup_name)
 
   # This is used in PG_DUMP as a username
   root_user = container_root_user_name container
 
-  backup_command = "pg_dumpall -U #{root_user} > #{backup_path}"
+  backup_command = "pg_dumpall -U #{root_user}"
 
-  result = run_cmd "docker exec #{container[:name]} bash -c '#{backup_command}'"
+  result = run_cmd "docker exec #{container[:name]} bash -c '#{backup_command}' > #{backup_path}"
 
   # if result is empty then no error was present
-  return nil unless result.empty?
-
-  $logger.info "Copying file docker:#{backup_path} to #{work_folder}"
-  # Copy backup from container
-  run_cmd "docker cp #{container[:name]}:#{backup_path} #{work_folder}"
+  unless result.empty?
+    $info.error "Could not backup #{container[:name]}"
+    $info.error result
+    return nil
+  end
 
   # Return absolute path of backup
-  File.join(work_folder, backup_name)
+  backup_path
 end
