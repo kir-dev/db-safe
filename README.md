@@ -25,4 +25,6 @@ A cél mappa linkje a `DRIVE_URL`-be menjen bele. Példa a `.env.example`-ben
 
 ## Cron job
 
-**TBA**
+Az automatikus ütemezéshez a [whenever](https://github.com/javan/whenever) gem-et használja.
+
+A `config/schedule.rb` fájlban lehet új ütemezést felvenni. A crontab frissítésére a `bunlde exec whenever --update-crontab` parancsot kell futtatni 
