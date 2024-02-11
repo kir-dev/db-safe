@@ -8,3 +8,4 @@ gem 'arg-parser'
 gem 'dotenv'
 gem 'google_drive'
 gem 'logger'
+gem 'whenever', require: false
