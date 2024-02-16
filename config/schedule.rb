@@ -19,15 +19,16 @@
 
 # Learn more: http://github.com/javan/whenever
 
-job_type :rbenv_script, 'export PATH=~/.rbenv/bin:$PATH; eval "$(rbenv init -)"; cd :path && bundle exec ruby :task :output'
+job_type :rbenv_script,
+         'export PATH=~/.rbenv/bin:$PATH; eval "$(rbenv init -)"; cd :path && bundle exec ruby :task :output'
 env :PATH, ENV['PATH']
-set :output, "~/cron.log"
+set :output, '~/cron.log'
 
 # To test logging and cron
-#every 1.minute do
+# every 1.minute do
 #    rbenv_script "./db_backup.rb --local --dry"
-#end
+# end
 
 every :sunday, at: '12pm' do
-    rbenv_script "./db_backup.rb"
+  rbenv_script './db_backup.rb'
 end

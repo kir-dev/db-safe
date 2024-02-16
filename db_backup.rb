@@ -30,16 +30,30 @@ class DbSafe
     raise 'Drive url is missing' unless ENV['DRIVE_URL'].present? || local
     raise 'Cert name is missing' unless ENV['CERT_NAME'].present? || local
 
+    check_docker_image
+
+
     # get all running postgres containers, and filter out the ignored ones
     db_containers = active_containers
                     .filter { |container| container[:image].match?(/postgres/) }
                     .filter { |container| !ignored_containers.include? container[:name] }
 
     # Create individual backup dumps in the workfolder
-    backups = db_containers.map { |c| backup_container(c) }.compact
+    db_backups = db_containers.map { |c| backup_container(c) }.compact
+    $logger.info "db_backups: #{db_backups}"
+
+    # perform full volume backups
+    volumes = available_volumes.filter { |v| v[:labels].split(',').include? 'hu.kirdev.dbsafe=' }
+
+    # Create individual volume backups
+
+    volume_backups = volumes.map { |v| backup_volume(v) }.compact
+    $logger.info "volume_backups: #{volume_backups}"
 
     # The final zip name is created from the hostname e.g Lois and creation date
     artifact_name = "#{hostname}-#{run_date}.zip"
+
+    backups = db_backups | volume_backups
 
     # Zip all the backups together
     artifact_path = zip_files(backups, artifact_name)
