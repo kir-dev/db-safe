@@ -32,7 +32,6 @@ class DbSafe
 
     check_docker_image
 
-
     # get all running postgres containers, and filter out the ignored ones
     db_containers = active_containers
                     .filter { |container| container[:image].match?(/postgres/) }
@@ -55,13 +54,17 @@ class DbSafe
 
     backups = db_backups | volume_backups
 
-    # Zip all the backups together
-    artifact_path = zip_files(backups, artifact_name)
+    if backups.empty?
+      $logger.info 'No data to backup. Skip zipping'
+    else
+      # Zip all the backups together
+      artifact_path = zip_files(backups, artifact_name)
 
-    # Upload artifact to Google Drive or local fodler
+      # Upload artifact to Google Drive or local fodler
 
-    upload_afrtifact(artifact_path, artifact_name) unless local
-    local_save(artifact_path, artifact_name) if local
+      upload_afrtifact(artifact_path, artifact_name) unless local
+      local_save(artifact_path, artifact_name) if local
+    end
 
     clean_work_folder
   end
